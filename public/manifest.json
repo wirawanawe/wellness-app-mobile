@@ -1,0 +1,37 @@
+{
+  "name": "Wellness Karyawan",
+  "short_name": "Wellness",
+  "description": "Program Wellness Karyawan Korporat",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#10b981",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable any"
+    }
+  ],
+  "categories": ["health", "fitness"],
+  "shortcuts": [
+    {
+      "name": "Log Harian",
+      "url": "/progress",
+      "description": "Catat progres hari ini"
+    },
+    {
+      "name": "Upload Lab",
+      "url": "/lab/upload",
+      "description": "Upload hasil lab baru"
+    }
+  ]
+}
