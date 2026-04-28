@@ -3,14 +3,13 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev -p 4440",
     "build": "next build",
     "start": "next start -p 4440",
     "lint": "eslint"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
-    "@simplewebauthn/browser": "^13.3.0",
     "@types/bcryptjs": "^2.4.6",
     "bcryptjs": "^3.0.3",
     "multer": "^2.1.1",
