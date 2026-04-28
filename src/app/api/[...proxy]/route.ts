@@ -30,7 +30,7 @@ async function handleProxy(request: NextRequest, context: { params: Promise<{ pr
       duplex: 'half',
     };
 
-    if (request.method !== 'GET' && request.method !== 'HEAD') {
+    if (request.method !== 'GET' && request.method !== 'HEAD' && request.body) {
       options.body = request.body;
     }
 

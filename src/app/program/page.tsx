@@ -12,6 +12,17 @@ import BottomNav from '@/components/BottomNav';
 //           weekly averages, doctor info
 // ============================================================
 
+type Mood = 'great' | 'good' | 'okay' | 'bad' | 'terrible';
+
+const MOODS: { value: Mood; emoji: string; label: string }[] = [
+  { value: 'great', emoji: '🤩', label: 'Luar biasa' },
+  { value: 'good', emoji: '😊', label: 'Bagus' },
+  { value: 'okay', emoji: '😐', label: 'Biasa' },
+  { value: 'bad', emoji: '😔', label: 'Kurang' },
+  { value: 'terrible', emoji: '😫', label: 'Buruk' },
+];
+
+
 interface Program {
   id: number;
   status: string;
@@ -33,8 +44,10 @@ interface TodayLog {
   air_liter: number;
   bakar_kalori: number;
   jam_istirahat: number;
-  mood: string;
+  mood: Mood;
+  stress_level: number;
 }
+
 
 interface WeekStats {
   avg_kalori_makan: number;
@@ -106,6 +119,10 @@ export default function ProgramPage() {
   const [activeTab, setActiveTab] = useState<'kalori_makan' | 'air_liter' | 'bakar_kalori' | 'jam_istirahat'>('kalori_makan');
   const [weekOffset, setWeekOffset] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [mood, setMood] = useState<Mood>('good');
+  const [stressLevel, setStressLevel] = useState(5);
+  const [savingMood, setSavingMood] = useState(false);
+
 
   const userId = (session?.user as { id?: string })?.id;
 
@@ -115,7 +132,11 @@ export default function ProgramPage() {
       .then((r) => r.json())
       .then((data) => {
         if (data.program) setProgram(data.program);
-        if (data.todayLog) setTodayLog(data.todayLog);
+        if (data.todayLog) {
+          setTodayLog(data.todayLog);
+          setMood(data.todayLog.mood || 'good');
+          setStressLevel(data.todayLog.stress_level || 5);
+        }
         if (data.weekStats) setWeekStats(data.weekStats);
         setLast7DaysLogs(data.last7DaysLogs || []);
         setDaysElapsed(data.daysElapsed || 0);
@@ -123,6 +144,34 @@ export default function ProgramPage() {
       })
       .finally(() => setLoading(false));
   }, [userId, weekOffset]);
+
+  const handleSaveMood = async (newMood: Mood, newStress: number) => {
+    if (!program) return;
+    setSavingMood(true);
+    try {
+      await fetch('/api/progress', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          program_id: program.id,
+          mood: newMood,
+          stress_level: newStress,
+          // Keep existing values from todayLog if any
+          kalori_makan: todayLog?.kalori_makan || 0,
+          air_liter: todayLog?.air_liter || 0,
+          bakar_kalori: todayLog?.bakar_kalori || 0,
+          jam_istirahat: todayLog?.jam_istirahat || 0,
+        }),
+      });
+      // Update local state
+      setTodayLog(prev => prev ? { ...prev, mood: newMood, stress_level: newStress } : null);
+    } catch (err) {
+      console.error('Failed to save mood:', err);
+    } finally {
+      setSavingMood(false);
+    }
+  };
+
 
   if (loading) {
     return (
@@ -247,21 +296,54 @@ export default function ProgramPage() {
           </div>
         </div>
 
-        {/* Today's Mood */}
-        {todayLog && (
-          <div className="bg-white border border-slate-100 rounded-3xl px-6 py-4 flex items-center gap-4 shadow-sm">
-            <div className="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center text-3xl shadow-inner border border-slate-100">
-              {moodEmoji[todayLog.mood] || '😊'}
-            </div>
-            <div>
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Mood Hari Ini</p>
-              <p className="text-slate-900 text-sm font-bold capitalize">{todayLog.mood}</p>
-            </div>
-            <Link href="/progress" className="ml-auto w-10 h-10 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 hover:text-emerald-500 transition-colors">
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
-            </Link>
+        {/* Interactive Mood & Stress Selector */}
+        <div className="bg-white border border-slate-100 rounded-[2.5rem] p-7 shadow-sm shadow-slate-200/50">
+          <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest text-center mb-5">Bagaimana Mood Anda Hari Ini?</p>
+          <div className="flex justify-between items-center px-1">
+            {MOODS.map((m) => (
+              <button
+                key={m.value}
+                type="button"
+                disabled={savingMood}
+                onClick={() => {
+                  setMood(m.value);
+                  handleSaveMood(m.value, stressLevel);
+                }}
+                className={`flex flex-col items-center gap-2 p-3 rounded-[1.5rem] transition-all ${
+                  mood === m.value 
+                    ? 'bg-emerald-50 ring-2 ring-emerald-500/20 border-emerald-100 scale-110 shadow-sm' 
+                    : 'opacity-40 hover:opacity-100 grayscale hover:grayscale-0'
+                }`}
+              >
+                <span className="text-3xl">{m.emoji}</span>
+                <span className={`text-[9px] font-black uppercase tracking-tighter ${mood === m.value ? 'text-emerald-700' : 'text-slate-400'}`}>
+                  {m.label}
+                </span>
+              </button>
+            ))}
           </div>
-        )}
+
+          <div className="mt-6 pt-5 border-t border-slate-100">
+            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest text-center mb-3 block">Level Stres (1-10)</label>
+            <div className="flex items-center gap-4">
+              <span className="text-xl">😌</span>
+              <input 
+                type="range" 
+                min="1" 
+                max="10" 
+                disabled={savingMood}
+                value={stressLevel} 
+                onChange={(e) => setStressLevel(Number(e.target.value))}
+                onMouseUp={() => handleSaveMood(mood, stressLevel)}
+                onTouchEnd={() => handleSaveMood(mood, stressLevel)}
+                className="flex-1 accent-emerald-500 h-2 bg-slate-100 rounded-lg appearance-none cursor-pointer"
+              />
+              <span className="text-xl">🤯</span>
+            </div>
+            <p className="text-center text-emerald-600 font-black mt-2 text-lg">{stressLevel}</p>
+          </div>
+        </div>
+
 
         {/* Target Progress Rings */}
         <div>

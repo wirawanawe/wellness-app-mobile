@@ -1,5 +1,5 @@
 'use client';
-import { useSession } from 'next-auth/react';
+import { useSession, signOut } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import BottomNav from '@/components/BottomNav';
@@ -64,7 +64,7 @@ function InfoRow({ label, value, icon }: { label: string; value: string; icon: s
 
 function SectionCard({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm">
+    <div className="bg-white border border-slate-100 rounded-[2rem] p-6 shadow-sm overflow-hidden">
       <p className="text-emerald-600 text-[10px] font-bold uppercase tracking-widest mb-4 flex items-center gap-2">
         <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
         {title}
@@ -86,8 +86,10 @@ export default function ProfilePage() {
   const [saveMsg, setSaveMsg] = useState('');
 
   const userId = (session?.user as { id?: string })?.id;
-  const userRole = (session?.user as { role?: string })?.role;
-  const firstName = session?.user?.name?.split(' ')[0] || 'User';
+  
+  const initials = profile?.name
+    ? profile.name.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase()
+    : '?';
 
   useEffect(() => {
     if (!userId) return;
@@ -98,7 +100,6 @@ export default function ProfilePage() {
           setProfile(d.user);
           setForm(d.user);
         } else {
-          // Fallback from session
           setProfile({
             id: Number(userId),
             name: session?.user?.name || '',
@@ -113,10 +114,6 @@ export default function ProfilePage() {
       .catch(() => {
         setProfile({
           id: Number(userId),
-          name: session?.user?.name || '',
-          email: session?.user?.email || '',
-        });
-        setForm({
           name: session?.user?.name || '',
           email: session?.user?.email || '',
         });
@@ -141,11 +138,9 @@ export default function ProfilePage() {
         setTimeout(() => setSaveMsg(''), 3000);
       } else {
         setSaveMsg('Gagal menyimpan. Coba lagi.');
-        setTimeout(() => setSaveMsg(''), 3000);
       }
     } catch {
       setSaveMsg('Gagal menyimpan. Coba lagi.');
-      setTimeout(() => setSaveMsg(''), 3000);
     } finally {
       setSaving(false);
     }
@@ -156,20 +151,13 @@ export default function ProfilePage() {
     return new Date(dateStr).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
   }
 
-  const initials = profile?.name
-    ? profile.name.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase()
-    : '?';
-
   return (
     <div className="min-h-dvh flex flex-col pb-safe bg-[#f8fafc]">
-
-      {/* ── HERO HEADER ──────────────────────────────────────────── */}
+      {/* Header */}
       <div className="relative px-5 pt-14 pb-6 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-violet-500/10 via-indigo-500/5 to-transparent" />
-        <div className="absolute -top-10 -right-10 w-56 h-56 bg-violet-500/5 rounded-full blur-3xl" />
-        <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-indigo-500/5 rounded-full blur-3xl" />
         <div className="relative flex items-center gap-3">
-          <Link href="/dashboard" className="w-10 h-10 rounded-2xl bg-white border border-slate-100 shadow-sm flex items-center justify-center text-slate-600 hover:text-slate-900 transition-colors">
+          <Link href="/dashboard" className="w-10 h-10 rounded-2xl bg-white border border-slate-100 shadow-sm flex items-center justify-center text-slate-600 active:scale-95 transition-transform">
             <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
             </svg>
@@ -181,7 +169,7 @@ export default function ProfilePage() {
           <button
             onClick={() => editing ? handleSave() : setEditing(true)}
             disabled={saving}
-            className={`px-4 py-2 rounded-2xl text-xs font-bold transition-all shadow-sm ${
+            className={`px-4 py-2 rounded-2xl text-xs font-bold transition-all shadow-sm active:scale-95 ${
               editing ? 'bg-emerald-500 text-white' : 'bg-white text-slate-600 border border-slate-100'
             }`}
           >
@@ -190,137 +178,106 @@ export default function ProfilePage() {
         </div>
       </div>
 
-      {/* ── CONTENT ──────────────────────────────────────────────── */}
-      <div className="flex-1 px-4 space-y-4 pb-28 animate-slide-up">
-
-        {/* Save message */}
+      <div className="flex-1 px-4 space-y-4 pb-32 animate-slide-up">
         {saveMsg && (
-          <div className={`glass-card p-3 text-center text-sm font-medium rounded-xl ${saveMsg.includes('berhasil') ? 'text-emerald-400 border border-emerald-500/30' : 'text-red-400 border border-red-500/30'}`}>
+          <div className={`p-4 rounded-2xl text-center text-xs font-bold ${saveMsg.includes('berhasil') ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-red-50 text-red-500 border border-red-100'}`}>
             {saveMsg}
           </div>
         )}
 
         {loading ? <ProfileSkeleton /> : (
           <>
-            {/* Avatar Card */}
-            <div className="bg-white border border-slate-100 rounded-[2rem] p-6 shadow-xl shadow-slate-200/50 flex flex-col items-center text-center">
-              <div className="relative group mb-4">
-                {profile?.avatar_url ? (
-                  <img src={profile.avatar_url} alt={profile.name} className="w-24 h-24 rounded-full object-cover border-4 border-white shadow-lg" />
-                ) : (
-                  <div className="w-24 h-24 rounded-full bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center text-3xl font-bold text-white border-4 border-white shadow-lg">
-                    {initials}
-                  </div>
-                )}
-                <div className="absolute -bottom-1 -right-1 w-8 h-8 bg-emerald-500 rounded-full border-4 border-white flex items-center justify-center text-white text-[10px]">
-                  ✓
+            <div className="bg-white border border-slate-100 rounded-[2.5rem] p-8 shadow-sm flex flex-col items-center text-center">
+              <div className="relative mb-4 group">
+                <div className="w-24 h-24 rounded-full bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center text-3xl font-bold text-white border-4 border-white shadow-xl transition-transform group-hover:scale-105">
+                  {initials}
                 </div>
               </div>
-              <p className="text-slate-900 font-bold text-xl mb-1">{profile?.name}</p>
-              <p className="text-slate-500 text-sm font-medium mb-4">{profile?.email}</p>
-              {profile?.company_name && (
-                <span className="px-3 py-1 rounded-full text-[11px] font-bold bg-violet-50 text-violet-600 border border-violet-100">
-                  🏢 {profile.company_name}
-                </span>
-              )}
+              <p className="text-slate-900 font-black text-xl mb-1">{profile?.name}</p>
+              <p className="text-slate-500 text-sm font-medium">{profile?.email}</p>
+              <div className="mt-4 px-4 py-1.5 rounded-full bg-slate-50 border border-slate-100 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                ID Karyawan: {profile?.employee_id || '-'}
+              </div>
             </div>
 
-            {/* Personal Info */}
             {editing ? (
-              <SectionCard title="📝 Edit Profil">
-                <div className="space-y-3">
-                  {[
-                    { key: 'name', label: 'Nama Lengkap', type: 'text', placeholder: 'Nama lengkap Anda' },
-                    { key: 'phone', label: 'No. Telepon', type: 'tel', placeholder: '08xx-xxxx-xxxx' },
-                    { key: 'birth_date', label: 'Tanggal Lahir', type: 'date', placeholder: '' },
-                    { key: 'ktp_number', label: 'No. KTP', type: 'text', placeholder: '16 digit NIK' },
-                    { key: 'blood_type', label: 'Golongan Darah', type: 'select', options: ['', 'A', 'B', 'AB', 'O', 'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'] },
-                    { key: 'address', label: 'Alamat', type: 'textarea', placeholder: 'Alamat lengkap' },
-                    { key: 'emergency_contact_name', label: 'Nama Kontak Darurat', type: 'text', placeholder: 'Nama' },
-                    { key: 'emergency_contact', label: 'No. Kontak Darurat', type: 'tel', placeholder: '08xx-xxxx-xxxx' },
-                  ].map(field => (
-                    <div key={field.key}>
-                      <label className="text-slate-500 text-[10px] font-bold uppercase tracking-wider mb-1.5 block">{field.label}</label>
-                      {field.type === 'select' ? (
-                        <select
-                          className="input-dark text-sm font-medium"
-                          value={(form as any)[field.key] || ''}
-                          onChange={e => setForm(f => ({ ...f, [field.key]: e.target.value }))}
-                        >
-                          {field.options?.map(opt => <option key={opt} value={opt}>{opt || 'Pilih...'}</option>)}
-                        </select>
-                      ) : field.type === 'textarea' ? (
-                        <textarea
-                          className="input-dark text-sm font-medium resize-none"
-                          rows={3}
-                          placeholder={field.placeholder}
-                          value={(form as any)[field.key] || ''}
-                          onChange={e => setForm(f => ({ ...f, [field.key]: e.target.value }))}
-                        />
-                      ) : (
-                        <input
-                          type={field.type}
-                          className="input-dark text-sm font-medium"
-                          placeholder={field.placeholder}
-                          value={(form as any)[field.key] || ''}
-                          onChange={e => setForm(f => ({ ...f, [field.key]: e.target.value }))}
-                        />
-                      )}
+              <div className="bg-white border border-slate-100 rounded-[2.5rem] p-7 space-y-6 shadow-sm">
+                <div className="space-y-4">
+                  <EditField label="Nama Lengkap" value={form.name || ''} onChange={v => setForm({...form, name: v})} />
+                  <EditField label="Email" value={form.email || ''} onChange={v => setForm({...form, email: v})} />
+                  <EditField label="No. Telepon" value={form.phone || ''} onChange={v => setForm({...form, phone: v})} />
+                  <EditField label="No. KTP" value={form.ktp_number || ''} onChange={v => setForm({...form, ktp_number: v})} />
+                  <EditField label="Tanggal Lahir" value={form.birth_date || ''} type="date" onChange={v => setForm({...form, birth_date: v})} />
+                  <EditField label="Alamat" value={form.address || ''} onChange={v => setForm({...form, address: v})} />
+                  <div className="grid grid-cols-2 gap-4">
+                    <EditField label="Golongan Darah" value={form.blood_type || ''} onChange={v => setForm({...form, blood_type: v})} />
+                    <div>
+                      <label className="block text-slate-500 text-[10px] font-bold uppercase tracking-wider mb-2">Gender</label>
+                      <select 
+                        value={form.gender || ''} 
+                        onChange={e => setForm({...form, gender: e.target.value})}
+                        className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-slate-900 text-sm font-bold outline-none focus:ring-2 focus:ring-emerald-500/20"
+                      >
+                        <option value="">Pilih</option>
+                        <option value="L">Laki-laki</option>
+                        <option value="P">Perempuan</option>
+                      </select>
                     </div>
-                  ))}
+                  </div>
+                  <hr className="border-slate-50" />
+                  <EditField label="Kontak Darurat" value={form.emergency_contact_name || ''} onChange={v => setForm({...form, emergency_contact_name: v})} placeholder="Nama Kontak" />
+                  <EditField label="No. Kontak Darurat" value={form.emergency_contact || ''} onChange={v => setForm({...form, emergency_contact: v})} placeholder="0812..." />
                 </div>
-              </SectionCard>
+              </div>
             ) : (
               <>
                 <SectionCard title="👤 Data Pribadi">
                   <InfoRow label="Nama Lengkap" value={profile?.name || ''} icon="🪪" />
+                  <InfoRow label="No. Telepon" value={profile?.phone || '-'} icon="📞" />
+                  <InfoRow label="No. KTP" value={profile?.ktp_number || '-'} icon="🆔" />
                   <InfoRow label="Tanggal Lahir" value={formatDate(profile?.birth_date)} icon="🎂" />
-                  <InfoRow label="Jenis Kelamin" value={profile?.gender === 'male' ? 'Laki-laki' : profile?.gender === 'female' ? 'Perempuan' : '-'} icon="⚧️" />
+                  <InfoRow label="Jenis Kelamin" value={profile?.gender === 'L' ? 'Laki-laki' : profile?.gender === 'P' ? 'Perempuan' : '-'} icon="🚻" />
                   <InfoRow label="Golongan Darah" value={profile?.blood_type || '-'} icon="🩸" />
-                  <InfoRow label="No. KTP (NIK)" value={profile?.ktp_number ? profile.ktp_number.replace(/(.{4})/g, '$1 ').trim() : '-'} icon="🪪" />
-                </SectionCard>
-
-                <SectionCard title="📞 Kontak">
-                  <InfoRow label="Email" value={profile?.email || ''} icon="📧" />
-                  <InfoRow label="No. Telepon" value={profile?.phone || '-'} icon="📱" />
-                  <InfoRow label="Alamat" value={profile?.address || '-'} icon="🏠" />
-                </SectionCard>
-
-                <SectionCard title="🚨 Kontak Darurat">
-                  <InfoRow label="Nama" value={profile?.emergency_contact_name || '-'} icon="👤" />
-                  <InfoRow label="No. Telepon" value={profile?.emergency_contact || '-'} icon="📱" />
+                  <InfoRow label="Alamat" value={profile?.address || '-'} icon="📍" />
                 </SectionCard>
 
                 <SectionCard title="🏢 Informasi Pekerjaan">
                   <InfoRow label="Perusahaan" value={profile?.company_name || '-'} icon="🏢" />
-                  <InfoRow label="Departemen" value={profile?.department || '-'} icon="🗂️" />
-                  <InfoRow label={userRole === 'dokter' ? "ID Dokter" : "ID Karyawan"} value={profile?.employee_id || '-'} icon="🔖" />
+                  <InfoRow label="Departemen" value={profile?.department || '-'} icon="📂" />
+                  <InfoRow label="ID Karyawan" value={profile?.employee_id || '-'} icon="🔖" />
                 </SectionCard>
-              </>
-            )}
 
-            {editing && (
-              <div className="flex gap-4">
-                <button
-                  onClick={() => { setEditing(false); setForm(profile || {}); }}
-                  className="flex-1 py-4 rounded-2xl text-sm font-bold text-slate-500 bg-white border border-slate-100 shadow-sm"
+                <SectionCard title="🚨 Kontak Darurat">
+                  <InfoRow label="Nama Kontak" value={profile?.emergency_contact_name || '-'} icon="👤" />
+                  <InfoRow label="No. Telepon" value={profile?.emergency_contact || '-'} icon="☎️" />
+                </SectionCard>
+
+                <button 
+                  onClick={() => signOut({ callbackUrl: '/login' })}
+                  className="w-full py-4 rounded-[2rem] text-red-500 font-black text-sm bg-red-50 border border-red-100 active:scale-95 transition-all shadow-sm"
                 >
-                  Batal
+                  🚪 Keluar dari Akun
                 </button>
-                <button
-                  onClick={handleSave}
-                  disabled={saving}
-                  className="flex-1 py-4 rounded-2xl text-sm font-bold btn-primary"
-                >
-                  {saving ? '⏳...' : 'Simpan'}
-                </button>
-              </div>
+              </>
             )}
           </>
         )}
       </div>
 
       <BottomNav active="profile" />
+    </div>
+  );
+}
+
+function EditField({ label, value, onChange, type = 'text', placeholder = '' }: { label: string; value: string; onChange: (v: string) => void; type?: string; placeholder?: string }) {
+  return (
+    <div>
+      <label className="block text-slate-500 text-[10px] font-bold uppercase tracking-wider mb-2">{label}</label>
+      <input
+        type={type} value={value} placeholder={placeholder}
+        onChange={e => onChange(e.target.value)}
+        className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-slate-900 text-sm font-bold outline-none focus:ring-2 focus:ring-emerald-500/20 placeholder:text-slate-300"
+      />
     </div>
   );
 }

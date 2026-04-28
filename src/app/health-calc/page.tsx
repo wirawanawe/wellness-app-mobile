@@ -14,12 +14,12 @@ interface CalcItem {
 }
 
 const CALCS: CalcItem[] = [
-  { key: 'bmi',          icon: '⚖️',  label: 'Kalkulator BMI',        color: 'from-emerald-500/20 to-teal-500/10',   desc: 'Hitung Indeks Massa Tubuh' },
-  { key: 'water',        icon: '💧',  label: 'Kebutuhan Air',          color: 'from-blue-500/20 to-cyan-500/10',      desc: 'Air ideal per hari' },
-  { key: 'bmr',          icon: '🔥',  label: 'Kalori Basal (BMR)',     color: 'from-orange-500/20 to-red-500/10',     desc: 'Kebutuhan kalori harianmu' },
-  { key: 'ideal_weight', icon: '🎯',  label: 'Berat Badan Ideal',     color: 'from-violet-500/20 to-purple-500/10',  desc: 'Target berat ideal' },
-  { key: 'phq9',         icon: '🧠',  label: 'PHQ-9 Depresi',         color: 'from-pink-500/20 to-rose-500/10',      desc: 'Skrining kesehatan mental' },
-  { key: 'fatigue',      icon: '😴',  label: 'Fatigue Assessment',    color: 'from-indigo-500/20 to-slate-500/10',   desc: 'Tingkat kelelahan' },
+  { key: 'bmi', icon: '⚖️', label: 'Kalkulator BMI', color: 'from-emerald-500/20 to-teal-500/10', desc: 'Hitung Indeks Massa Tubuh' },
+  { key: 'water', icon: '💧', label: 'Kebutuhan Air', color: 'from-blue-500/20 to-cyan-500/10', desc: 'Air ideal per hari' },
+  { key: 'bmr', icon: '🔥', label: 'Kalori Basal (BMR)', color: 'from-orange-500/20 to-red-500/10', desc: 'Kebutuhan kalori harianmu' },
+  { key: 'ideal_weight', icon: '🎯', label: 'Berat Badan Ideal', color: 'from-violet-500/20 to-purple-500/10', desc: 'Target berat ideal' },
+  { key: 'phq9', icon: '🧠', label: 'PHQ-9 Depresi', color: 'from-pink-500/20 to-rose-500/10', desc: 'Skrining kesehatan mental' },
+  { key: 'fatigue', icon: '😴', label: 'Fatigue Assessment', color: 'from-indigo-500/20 to-slate-500/10', desc: 'Tingkat kelelahan' },
 ];
 
 // ─── PHQ-9 Questions ────────────────────────────────────────────────────────
@@ -91,10 +91,10 @@ export default function HealthCalcPage() {
     if (!h || !w) return;
     const bmi = w / (h * h);
     let label = '', color = '';
-    if (bmi < 18.5)      { label = 'Berat Badan Kurang'; color = 'text-blue-400'; }
-    else if (bmi < 25)   { label = 'Normal / Ideal ✓'; color = 'text-emerald-400'; }
-    else if (bmi < 30)   { label = 'Kelebihan Berat Badan'; color = 'text-amber-400'; }
-    else                 { label = 'Obesitas'; color = 'text-red-400'; }
+    if (bmi < 18.5) { label = 'Berat Badan Kurang'; color = 'text-blue-400'; }
+    else if (bmi < 25) { label = 'Normal / Ideal ✓'; color = 'text-emerald-400'; }
+    else if (bmi < 30) { label = 'Kelebihan Berat Badan'; color = 'text-amber-400'; }
+    else { label = 'Obesitas'; color = 'text-red-400'; }
     setBmiResult({ bmi: parseFloat(bmi.toFixed(1)), label, color });
   }
 
@@ -131,11 +131,11 @@ export default function HealthCalcPage() {
     if (phq9Answers.includes(-1)) return;
     const score = phq9Answers.reduce((a, b) => a + b, 0);
     let label = '', color = '', advice = '';
-    if (score <= 4)       { label = 'Minimal / Normal'; color = 'text-emerald-400'; advice = 'Tidak ada indikasi depresi. Pertahankan gaya hidup sehat Anda.'; }
-    else if (score <= 9)  { label = 'Depresi Ringan'; color = 'text-yellow-400'; advice = 'Perhatikan kesehatan mental Anda. Coba kelola stres dengan olahraga atau meditasi.'; }
+    if (score <= 4) { label = 'Minimal / Normal'; color = 'text-emerald-400'; advice = 'Tidak ada indikasi depresi. Pertahankan gaya hidup sehat Anda.'; }
+    else if (score <= 9) { label = 'Depresi Ringan'; color = 'text-yellow-400'; advice = 'Perhatikan kesehatan mental Anda. Coba kelola stres dengan olahraga atau meditasi.'; }
     else if (score <= 14) { label = 'Depresi Sedang'; color = 'text-amber-400'; advice = 'Disarankan untuk berkonsultasi dengan profesional kesehatan mental.'; }
     else if (score <= 19) { label = 'Depresi Cukup Berat'; color = 'text-orange-400'; advice = 'Segera hubungi dokter atau psikolog untuk penanganan lebih lanjut.'; }
-    else                  { label = 'Depresi Berat'; color = 'text-red-400'; advice = 'Segera cari pertolongan profesional. Jangan tunda konsultasi dengan dokter.'; }
+    else { label = 'Depresi Berat'; color = 'text-red-400'; advice = 'Segera cari pertolongan profesional. Jangan tunda konsultasi dengan dokter.'; }
     setPhq9Result({ score, label, color, advice });
   }
 
@@ -144,10 +144,10 @@ export default function HealthCalcPage() {
     if (fatigueAnswers.includes(-1)) return;
     const score = fatigueAnswers.reduce((a, b) => a + b, 0);
     let label = '', color = '';
-    if (score <= 9)       { label = 'Kelelahan Minimal'; color = 'text-emerald-400'; }
+    if (score <= 9) { label = 'Kelelahan Minimal'; color = 'text-emerald-400'; }
     else if (score <= 18) { label = 'Kelelahan Ringan'; color = 'text-yellow-400'; }
     else if (score <= 27) { label = 'Kelelahan Sedang'; color = 'text-amber-400'; }
-    else                  { label = 'Kelelahan Berat'; color = 'text-red-400'; }
+    else { label = 'Kelelahan Berat'; color = 'text-red-400'; }
     setFatigueResult({ score, label, color });
   }
 
@@ -249,7 +249,7 @@ export default function HealthCalcPage() {
               <div>
                 <label className="block text-slate-500 text-[10px] font-bold uppercase tracking-wider mb-3">Jenis Kelamin</label>
                 <div className="flex gap-3">
-                  {[['L','Laki-laki','♂️'],['P','Perempuan','♀️']].map(([v,l,e]) => (
+                  {[['L', 'Laki-laki', '♂️'], ['P', 'Perempuan', '♀️']].map(([v, l, e]) => (
                     <button key={v} onClick={() => setBmrGender(v)} className={`flex-1 py-3 rounded-2xl border-2 text-xs font-bold transition-all flex items-center justify-center gap-2 ${bmrGender === v ? 'bg-emerald-50 border-emerald-500 text-emerald-700 shadow-sm' : 'border-slate-100 bg-slate-50/50 text-slate-400'}`}>{e} {l}</button>
                   ))}
                 </div>
@@ -305,7 +305,7 @@ export default function HealthCalcPage() {
               <div>
                 <label className="block text-slate-400 text-sm mb-2">Jenis Kelamin</label>
                 <div className="flex gap-3">
-                  {[['L','Laki-laki'],['P','Perempuan']].map(([v,l]) => (
+                  {[['L', 'Laki-laki'], ['P', 'Perempuan']].map(([v, l]) => (
                     <button key={v} onClick={() => setIwGender(v)} className={`flex-1 py-2.5 rounded-xl border text-sm font-medium transition-all ${iwGender === v ? 'bg-emerald-500/20 border-emerald-500 text-emerald-400' : 'border-white/10 text-slate-400'}`}>{l}</button>
                   ))}
                 </div>
@@ -368,9 +368,9 @@ export default function HealthCalcPage() {
             </div>
             {FATIGUE_QUESTIONS.map((q, i) => (
               <div key={i} className="glass-card p-4 space-y-3">
-                <p className="text-white text-sm font-medium">{i + 1}. {q}</p>
+                <p className="text-gray-600 text-sm font-medium">{i + 1}. {q}</p>
                 <div className="flex gap-2 justify-between">
-                  {[1,2,3,4].map(v => (
+                  {[1, 2, 3, 4].map(v => (
                     <button key={v} onClick={() => { const a = [...fatigueAnswers]; a[i] = v; setFatigueAnswers(a); }}
                       className={`flex-1 py-2.5 rounded-xl text-sm border font-semibold transition-all ${fatigueAnswers[i] === v ? 'border-indigo-500 bg-indigo-500/20 text-indigo-300' : 'border-white/10 text-slate-400'}`}>
                       {v}

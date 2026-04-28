@@ -16,6 +16,7 @@ const MOODS: { value: Mood; emoji: string; label: string }[] = [
   { value: 'terrible', emoji: '😫', label: 'Buruk' },
 ];
 
+
 function calculateSleep(start: string, end: string): number {
   if (!start || !end) return 0;
   const [sH, sM] = start.split(':').map(Number);
@@ -135,46 +136,7 @@ export default function ProgressPage() {
             autoRedirect={false}
           />
 
-          {/* Mood Selector */}
-          <div className="bg-white border border-slate-100 rounded-[2.5rem] p-7 shadow-sm shadow-slate-200/50">
-            <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest text-center mb-5">Bagaimana Mood Anda Hari Ini?</p>
-            <div className="flex justify-between items-center px-1">
-              {MOODS.map((m) => (
-                <button
-                  key={m.value}
-                  type="button"
-                  onClick={() => setMood(m.value)}
-                  className={`flex flex-col items-center gap-2 p-3 rounded-[1.5rem] transition-all ${
-                    mood === m.value 
-                      ? 'bg-emerald-50 ring-2 ring-emerald-500/20 border-emerald-100 scale-110 shadow-sm' 
-                      : 'opacity-40 hover:opacity-100 grayscale hover:grayscale-0'
-                  }`}
-                >
-                  <span className="text-3xl">{m.emoji}</span>
-                  <span className={`text-[9px] font-black uppercase tracking-tighter ${mood === m.value ? 'text-emerald-700' : 'text-slate-400'}`}>
-                    {m.label}
-                  </span>
-                </button>
-              ))}
-            </div>
 
-            <div className="mt-6 pt-5 border-t border-slate-100">
-              <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest text-center mb-3 block">Level Stres (1-10)</label>
-              <div className="flex items-center gap-4">
-                <span className="text-xl">😌</span>
-                <input 
-                  type="range" 
-                  min="1" 
-                  max="10" 
-                  value={stressLevel} 
-                  onChange={(e) => setStressLevel(Number(e.target.value))}
-                  className="flex-1 accent-emerald-500 h-2 bg-slate-100 rounded-lg appearance-none cursor-pointer"
-                />
-                <span className="text-xl">🤯</span>
-              </div>
-              <p className="text-center text-emerald-600 font-black mt-2 text-lg">{stressLevel}</p>
-            </div>
-          </div>
 
           {/* Progress Fields */}
           <div className="space-y-4">

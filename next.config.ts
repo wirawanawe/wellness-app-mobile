@@ -9,7 +9,7 @@ const nextConfig: NextConfig = {
     },
   },
   turbopack: {
-    root: path.resolve(__dirname),
+    root: '/Users/wirawanawe/Project/PHC/wellness-app',
   },
   images: {
     remotePatterns: [

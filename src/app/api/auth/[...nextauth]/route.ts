@@ -14,7 +14,27 @@ export const authOptions: NextAuthOptions = {
         password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
+        if ((credentials?.isBiometric === 'true' || credentials?.isPin === 'true') && credentials?.userId) {
+          // If biometric or PIN is already verified by the verify endpoint, 
+          // we just fetch the user details to complete the session.
+          const res = await fetch(`${BACKEND_URL}/api/users/${credentials.userId}/profile`, {
+            headers: { 'x-user-id': credentials.userId }
+          });
+          if (!res.ok) return null;
+          const data = await res.json();
+          return {
+            id: String(data.user.id),
+            name: data.user.name,
+            email: data.user.email,
+            role: data.user.role,
+            companyId: data.user.company_id,
+            image: data.user.avatar_url,
+          };
+        }
+
+
         if (!credentials?.email || !credentials?.password) return null;
+
 
         const res = await fetch(`${BACKEND_URL}/api/auth/login`, {
           method: 'POST',

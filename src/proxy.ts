@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getToken } from 'next-auth/jwt';
 
-const PUBLIC_PATHS = ['/', '/login', '/register', '/verify-otp', '/dashboard', '/health-calc', '/terms', '/api/auth', '/api/ads', '/api/health-articles'];
+const PUBLIC_PATHS = ['/', '/login', '/register', '/verify-otp', '/dashboard', '/health-calc', '/terms', '/api/auth', '/api/ads', '/api/health-articles', '/api/webauthn'];
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
