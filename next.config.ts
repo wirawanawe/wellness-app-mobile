@@ -8,9 +8,6 @@ const nextConfig: NextConfig = {
       allowedOrigins: ['localhost:3000'],
     },
   },
-  turbopack: {
-    root: '/Users/wirawanawe/Project/PHC/wellness-app',
-  },
   images: {
     remotePatterns: [
       { protocol: 'http', hostname: 'localhost' },
