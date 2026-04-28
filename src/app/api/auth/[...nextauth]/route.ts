@@ -12,10 +12,12 @@ export const authOptions: NextAuthOptions = {
       credentials: {
         email: { label: 'Email', type: 'email' },
         password: { label: 'Password', type: 'password' },
+        isPin: { label: 'Is PIN', type: 'text' },
+        userId: { label: 'User ID', type: 'text' },
       },
       async authorize(credentials) {
-        if ((credentials?.isBiometric === 'true' || credentials?.isPin === 'true') && credentials?.userId) {
-          // If biometric or PIN is already verified by the verify endpoint, 
+        if (credentials?.isPin === 'true' && credentials?.userId) {
+          // If PIN is already verified by the verify endpoint, 
           // we just fetch the user details to complete the session.
           const res = await fetch(`${BACKEND_URL}/api/users/${credentials.userId}/profile`, {
             headers: { 'x-user-id': credentials.userId }
