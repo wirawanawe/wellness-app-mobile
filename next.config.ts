@@ -16,13 +16,10 @@ const nextConfig: NextConfig = {
   },
 };
 
-const isDev = process.env.NODE_ENV === "development";
-
-const withSerwist = isDev 
-  ? (config: NextConfig) => config 
-  : withSerwistInit({
-      swSrc: "src/sw.ts",
-      swDest: "public/sw.js",
-    });
+const withSerwist = withSerwistInit({
+  swSrc: "src/sw.ts",
+  swDest: "public/sw.js",
+  disable: process.env.NODE_ENV === "development",
+});
 
 export default withSerwist(nextConfig);

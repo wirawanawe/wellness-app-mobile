@@ -1,6 +1,7 @@
 import { defaultCache } from "@serwist/next/worker";
 import type { PrecacheEntry, SerwistGlobalConfig } from "serwist";
 import { Serwist } from "serwist";
+// Note: Additional features like Background Sync can be added here as needed
 
 declare global {
   interface ServiceWorkerGlobalScope extends SerwistGlobalConfig {
@@ -17,5 +18,8 @@ const serwist = new Serwist({
   navigationPreload: true,
   runtimeCaching: defaultCache,
 });
+
+// Basic Background Sync can be added here if you have specific sync tasks
+// serwist.registerSync('my-sync-task', async () => { ... });
 
 serwist.addEventListeners();
