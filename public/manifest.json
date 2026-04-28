@@ -1,4 +1,5 @@
 {
+  "id": "/",
   "name": "Wellness Karyawan",
   "short_name": "Wellness",
   "description": "Program Wellness Karyawan Korporat",
@@ -19,6 +20,22 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable any"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshots/desktop-1.png",
+      "sizes": "1280x800",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Desktop Dashboard"
+    },
+    {
+      "src": "/screenshots/mobile-1.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Mobile Dashboard"
     }
   ],
   "categories": ["health", "fitness"],

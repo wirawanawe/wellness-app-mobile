@@ -1,5 +1,6 @@
 import path from 'path';
 import type { NextConfig } from 'next';
+import withSerwistInit from "@serwist/next";
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
@@ -15,4 +16,13 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+const isDev = process.env.NODE_ENV === "development";
+
+const withSerwist = isDev 
+  ? (config: NextConfig) => config 
+  : withSerwistInit({
+      swSrc: "src/sw.ts",
+      swDest: "public/sw.js",
+    });
+
+export default withSerwist(nextConfig);
